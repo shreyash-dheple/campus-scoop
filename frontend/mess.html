@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mess · CampusScoop</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-page="mess">
+<header class="top">
+  <a class="back" href="index.html" aria-label="Back to messes">‹ Messes</a>
+  <h1 id="name">…</h1>
+  <p id="meta" class="muted"></p>
+</header>
+<nav id="tabs" class="tabs" aria-label="Meal session"></nav>
+<main>
+  <div id="strip"></div>
+  <section>
+    <div class="row"><h2 id="menuTitle">Menu</h2><button id="menuBtn" class="link">Post menu</button></div>
+    <div id="menu" class="menu"></div>
+  </section>
+  <section>
+    <h2 id="revTitle">Reviews</h2>
+    <div id="reviews"></div>
+  </section>
+</main>
+<div class="bar"><button id="rateBtn" class="primary">★ Rate</button></div>
+
+<dialog id="rateDlg">
+  <h3 id="rateTitle">Rate this session</h3>
+  <div id="starPick" class="stars big" role="radiogroup" aria-label="Rating"></div>
+  <textarea id="comment" maxlength="300" placeholder="How was the food? (optional)"></textarea>
+  <div class="actions"><button class="ghost" data-close>Cancel</button><button id="rateSend" class="primary">Post review</button></div>
+</dialog>
+
+<dialog id="menuDlg">
+  <h3 id="menuDlgTitle">What is being served?</h3>
+  <textarea id="items" maxlength="300" placeholder="e.g. Dal, rice, 2 chapati, aloo gobi"></textarea>
+  <div class="actions"><button class="ghost" data-close>Cancel</button><button id="menuSend" class="primary">Post menu</button></div>
+</dialog>
+<div id="toast" class="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>

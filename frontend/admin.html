@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin · CampusScoop</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top"><a class="back" href="index.html">‹ Messes</a><h1>Admin</h1><p>Add the messes students will see</p></header>
+<main>
+  <h2>Admin key</h2>
+  <input id="key" type="password" placeholder="Admin key" autocomplete="off">
+  <h2>Add a mess</h2>
+  <input id="name" placeholder="Mess name" maxlength="80">
+  <input id="area" placeholder="Area (e.g. Near main gate)" maxlength="80">
+  <div class="actions"><button id="add" class="primary">Add mess</button></div>
+  <h2>Current messes</h2>
+  <div id="list" class="list"></div>
+</main>
+<div id="toast" class="toast"></div>
+<style>input{width:100%;min-height:48px;border:1px solid var(--line);border-radius:10px;padding:0 12px;font:inherit;margin-bottom:8px}.del{background:none;border:1px solid var(--chilli);color:var(--chilli);border-radius:99px;padding:6px 14px;min-height:36px;cursor:pointer}</style>
+<script>
+const $ = s => document.querySelector(s);
+const toast = m => { const t = $('#toast'); t.textContent = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2200); };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+$('#key').value = sessionStorage.getItem('cs_admin') || '';
+async function call(path, method, body) {
+  const res = await fetch('/api' + path, { method, headers: { 'Content-Type': 'application/json', 'X-Admin-Key': $('#key').value }, body: body ? JSON.stringify(body) : undefined });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(typeof data.detail === 'string' ? data.detail : 'Check the name and area');
+  sessionStorage.setItem('cs_admin', $('#key').value);
+  return data;
+}
+async function load() {
+  const r = await fetch('/api/messes'); const ms = await r.json();
+  $('#list').innerHTML = ms.map(m => `<div class="card"><div><b>${esc(m.name)}</b><span class="muted">${esc(m.area)}</span></div><div><button class="del clr" data-clear="${m.id}">Clear reviews</button> <button class="del" data-id="${m.id}">Delete</button></div></div>`).join('') || '<p class="muted">No messes yet.</p>';
+}
+$('#add').onclick = async () => {
+  try { await call('/admin/messes', 'POST', { name: $('#name').value, area: $('#area').value }); $('#name').value = ''; $('#area').value = ''; toast('Mess added'); load(); }
+  catch (e) { toast(e.message); }
+};
+$('#list').onclick = async e => {
+  const c = e.target.closest('[data-clear]');
+  if (c) {
+    if (!confirm('Remove all reviews and menus of this mess?')) return;
+    try { await call('/admin/messes/' + c.dataset.clear + '/clear', 'POST'); toast('Cleared'); load(); } catch (err) { toast(err.message); }
+    return;
+  }
+  const b = e.target.closest('.del'); if (!b || !confirm('Delete this mess and all its reviews?')) return;
+  try { await call('/admin/messes/' + b.dataset.id, 'DELETE'); toast('Deleted'); load(); } catch (err) { toast(err.message); }
+};
+load();
+</script>
+</body>
+</html>
